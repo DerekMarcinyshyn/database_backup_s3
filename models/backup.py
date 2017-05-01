@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import os
-import base64
-import shutil
 import tempfile
-import sys
+import base64
 from datetime import datetime
 
 from odoo import models, fields, api, tools
@@ -65,38 +63,17 @@ class DatabaseBackupS3Settings(models.TransientModel):
 
     @api.model
     def create_backup(self):
-            """Run backups"""
-            backup = None
-            filename = self.filename(datetime.now())
-            successful = self.browse()
+        """Run backups"""
+        filename = self.filename(datetime.now())
+        try:
+            _logger.info('Sending...')
 
-            for rec in self:
-                # Directory must exist
-                try:
-                    os.makedirs(self.folder())
-                except OSError:
-                    pass
+            def dump_db(stream):
+                return db.dump_db(self.env.cr.dbname, stream)
 
-                with open(os.path.join(self.folder(), filename), 'wb') as destiny:
-                    # Copy the cached backup
-                    if backup:
-                        with open(backup) as cached:
-                            shutil.copyfileobj(cached, destiny)
-                    # Generate new backup
-                    else:
-                        def dump_db(stream):
-                            return db.dump_db(self.env.cr.dbname, stream)
-
-                        backup = backup or destiny.name
-                        # Send to AWS S3
-                        try:
-                            _logger.critical('Sending...')
-                            self._transport_backup(dump_db, filename)
-                        except Exception as e:
-                            _logger.exception('An error occurred uploading to AWS S3. %s' % str(e))
-
-                successful |= rec
-            _logger.info('Done database backup and sending to AWS S3.')
+            self._transport_backup(dump_db, filename)
+        except Exception as e:
+            _logger.exception('An error occurred uploading to AWS S3. %s' % str(e))
 
     @api.model
     def _transport_backup(self, dump_db, filename=None):
@@ -105,7 +82,6 @@ class DatabaseBackupS3Settings(models.TransientModel):
             dump_db(t)
             t.seek(0)
             db_dump = base64.b64decode(t.read().encode('base64'))
-            _logger.critical('Size of dump %s' % sys.getsizeof(db_dump))
             conn = boto.s3.connect_to_region('us-west-2',
                                              aws_access_key_id=self.database_backup_s3_id,
                                              aws_secret_access_key=self.database_backup_s3_key)
