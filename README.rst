@@ -6,7 +6,9 @@ Installed in Odoo server instance and sends backup data to S3.
 Features:
 ---------
 
-Uses Odoo built in db.dump_db command. 
+Uses Odoo built in db.dump_db command.
+
+Recommend setting your AWS S3 Lifecycle to your preferred expiration policy.
 
 Install:
 --------
