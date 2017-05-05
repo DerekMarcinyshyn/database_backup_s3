@@ -8,7 +8,7 @@ Features:
 
 Uses Odoo built in db.dump_db command.
 
-Recommend setting your AWS S3 Lifecycle to your preferred expiration policy.
+We recommend setting your AWS S3 Lifecycle to your preferred expiration policy.
 
 Install:
 --------

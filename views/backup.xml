@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="view_database_backup_s3_settings" model="ir.ui.view">
-            <field name="name">database_backup_s3.settings</field>
-            <field name="model">database_backup_s3.settings</field>
+        <record id="view_database_backup_s3_backup" model="ir.ui.view">
+            <field name="name">database_backup_s3.backup</field>
+            <field name="model">database_backup_s3.backup</field>
             <field name="arch" type="xml">
                 <form string="Database Backup S3 Settings" class="oe_form_configuration">
                     <header>
@@ -38,17 +38,17 @@
             </field>
         </record>
 
-        <record id="action_database_backup_s3_settings" model="ir.actions.act_window">
-            <field name="name">Database Backup AWS S3 Settings</field>
-            <field name="res_model">database_backup_s3.settings</field>
+        <record id="action_database_backup_s3_backup" model="ir.actions.act_window">
+            <field name="name">Database Backup S3</field>
+            <field name="res_model">database_backup_s3.backup</field>
             <field name="view_mode">form</field>
             <field name="target">inline</field>
         </record>
 
         <menuitem name="Database Backup" id="menu_database_backup_s3_main"
                   parent="base.menu_administration" sequence="1000" />
-        <menuitem name="AWS Settings" id="menu_database_backup_s3_settings"
+        <menuitem name="AWS Settings" id="menu_database_backup_s3_backup"
                   parent="menu_database_backup_s3_main" sequence="1"
-                  action="action_database_backup_s3_settings" />
+                  action="action_database_backup_s3_backup" />
     </data>
 </odoo>

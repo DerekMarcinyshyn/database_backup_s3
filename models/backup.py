@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import os
 import tempfile
 import base64
 from datetime import datetime
 
-from odoo import models, fields, api, tools
+from odoo import models, fields, api
 from odoo.service import db
 
 import logging
@@ -33,9 +32,9 @@ PARAMS = [
 ]
 
 
-class DatabaseBackupS3Settings(models.TransientModel):
+class DatabaseBackupS3Backup(models.TransientModel):
 
-    _name = 'database_backup_s3.settings'
+    _name = 'database_backup_s3.backup'
     _inherit = 'res.config.settings'
 
     database_backup_s3_id = fields.Char(string='AWS Access Id', required=True)
@@ -95,11 +94,6 @@ class DatabaseBackupS3Settings(models.TransientModel):
         k.key = filename
         k.set_contents_from_string(data)
         _logger.info('Backup success')
-
-    @api.model
-    def folder(self):
-        """Default to ``backups`` folder inside current server datadir."""
-        return os.path.join(tools.config["data_dir"], "backups", self.env.cr.dbname)
 
     @api.model
     def filename(self, when):

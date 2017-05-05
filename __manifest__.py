@@ -15,6 +15,7 @@
         'website'
     ],
     'data': [
+        'data/ir_cron.xml',
         'views/backup.xml',
     ],
     'installable': True,
