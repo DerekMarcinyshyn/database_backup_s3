@@ -17,14 +17,6 @@ try:
 except:
     _logger.debug('Database Backup S3 requires python library Boto to be installed.')
 
-try:
-    parallel_upload = False
-    from filechunkio import FileChunkIO
-    parallel_upload = True
-except:
-    _logger.debug('Database Backup S3 performs better with FileChunkIO installed.')
-
-
 PARAMS = [
     ("database_backup_s3_id", "database_backup_s3.id"),
     ("database_backup_s3_key", "database_backup_s3.key"),
