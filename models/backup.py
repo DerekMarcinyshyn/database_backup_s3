@@ -57,35 +57,26 @@ class DatabaseBackupS3Backup(models.TransientModel):
         """Run backups"""
         filename = self.filename(datetime.now())
         try:
-            _logger.info('Sending...')
+            _logger.info('Creating backup...')
 
             def dump_db(stream):
                 return db.dump_db(self.env.cr.dbname, stream)
 
-            self._transport_backup(dump_db, filename)
+            with tempfile.TemporaryFile() as t:
+                dump_db(t)
+                t.seek(0)
+                data = base64.b64decode(t.read().encode('base64'))
+
+                _logger.info('Sending S3 simple agent')
+                conn = boto.s3.connect_to_region('us-west-2', aws_access_key_id=self.database_backup_s3_id, aws_secret_access_key=self.database_backup_s3_key)
+                bucket = conn.get_bucket(self.database_backup_s3_bucket)
+                k = Key(bucket)
+                k.key = filename
+                k.set_contents_from_string(data)
+                _logger.info('Backup success')
+
         except Exception as e:
             _logger.exception('An error occurred uploading to AWS S3. %s' % str(e))
-
-    @api.model
-    def _transport_backup(self, dump_db, filename=None):
-        """send the database dump to AWS S3"""
-        with tempfile.TemporaryFile() as t:
-            dump_db(t)
-            t.seek(0)
-            db_dump = base64.b64decode(t.read().encode('base64'))
-            conn = boto.s3.connect_to_region('us-west-2',
-                                             aws_access_key_id=self.database_backup_s3_id,
-                                             aws_secret_access_key=self.database_backup_s3_key)
-            bucket = conn.get_bucket(self.database_backup_s3_bucket)
-            self._transport_simple(bucket, db_dump, filename)
-
-    @staticmethod
-    def _transport_simple(bucket, data, filename):
-        _logger.info('Sending S3 simple agent')
-        k = Key(bucket)
-        k.key = filename
-        k.set_contents_from_string(data)
-        _logger.info('Backup success')
 
     @api.model
     def filename(self, when):

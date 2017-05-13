@@ -8,9 +8,7 @@
             <field name="interval_number">1</field>
             <field name="interval_type">days</field>
             <field name="numbercall">-1</field>
-            <field name="nextcall"
-                   eval="(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 02:00:00')"
-            />
+            <field name="nextcall" eval="(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d 02:00:00')"/>
             <field name="model">database_backup_s3.backup</field>
             <field name="function">create_backup</field>
         </record>
