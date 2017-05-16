@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import os
+import json
 import tempfile
 import base64
 from datetime import datetime
 
-from odoo import models, fields, api
+from odoo import models, api
 from odoo.service import db
 
 import logging
@@ -17,36 +19,9 @@ try:
 except:
     _logger.debug('Database Backup S3 requires python library Boto to be installed.')
 
-PARAMS = [
-    ("database_backup_s3_id", "database_backup_s3.id"),
-    ("database_backup_s3_key", "database_backup_s3.key"),
-    ("database_backup_s3_bucket", "database_backup_s3.bucket"),
-]
 
-
-class DatabaseBackupS3Backup(models.TransientModel):
-
+class DatabaseBackupS3Backup(models.Model):
     _name = 'database_backup_s3.backup'
-    _inherit = 'res.config.settings'
-
-    database_backup_s3_id = fields.Char(string='AWS Access Id', required=True)
-    database_backup_s3_key = fields.Char(string='AWS Secret Key', required=True)
-    database_backup_s3_bucket = fields.Char(string='AWS Bucket', required=True)
-
-    @api.one
-    def set_params(self):
-        self.ensure_one()
-
-        for field_name, key_name in PARAMS:
-            value = getattr(self, field_name, '').strip()
-            self.env['ir.config_parameter'].set_param(key_name, value)
-
-    @api.model
-    def get_default_params(self, fields):
-        res = {}
-        for field_name, key_name in PARAMS:
-            res[field_name] = self.env['ir.config_parameter'].get_param(key_name, '').strip()
-        return res
 
     @api.one
     def action_database_backup_s3_test(self):
@@ -56,6 +31,12 @@ class DatabaseBackupS3Backup(models.TransientModel):
     def create_backup(self):
         """Run backups"""
         filename = self.filename(datetime.now())
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/aws.json', 'r') as aws_file:
+            aws = json.load(aws_file)
+            key = aws["key"]
+            secret = aws["secret"]
+            bucket = aws["bucket"]
+
         try:
             _logger.info('Creating backup...')
 
@@ -68,8 +49,8 @@ class DatabaseBackupS3Backup(models.TransientModel):
                 data = base64.b64decode(t.read().encode('base64'))
 
                 _logger.info('Sending S3 simple agent')
-                conn = boto.s3.connect_to_region('us-west-2', aws_access_key_id=self.database_backup_s3_id, aws_secret_access_key=self.database_backup_s3_key)
-                bucket = conn.get_bucket(self.database_backup_s3_bucket)
+                conn = boto.s3.connect_to_region('us-west-2', aws_access_key_id=key, aws_secret_access_key=secret)
+                bucket = conn.get_bucket(bucket)
                 k = Key(bucket)
                 k.key = filename
                 k.set_contents_from_string(data)

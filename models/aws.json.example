@@ -1,0 +1,5 @@
+{
+  "key":"key",
+  "secret":"secret",
+  "bucket":"my-bucket"
+}

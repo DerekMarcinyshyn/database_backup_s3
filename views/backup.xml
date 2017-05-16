@@ -6,29 +6,6 @@
             <field name="model">database_backup_s3.backup</field>
             <field name="arch" type="xml">
                 <form string="Database Backup S3 Settings" class="oe_form_configuration">
-                    <header>
-                        <button string="Save" type="object"
-                                name="execute" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" type="object"
-                                name="cancel" class="oe_link"/>
-                    </header>
-                    <group string="AWS S3 Settings">
-                        <div>
-                            <div>
-                                <label for="database_backup_s3_id"/>
-                                <field name="database_backup_s3_id" placeholder="AWS Access Id" />
-                            </div>
-                            <div>
-                                <label for="database_backup_s3_key"/>
-                                <field name="database_backup_s3_key" placeholder="AWS Secret Key"/>
-                            </div>
-                            <div>
-                                <label for="database_backup_s3_bucket"/>
-                                <field name="database_backup_s3_bucket" placeholder="my-aws-bucket"/>
-                            </div>
-                        </div>
-                    </group>
                     <group string="Test">
                         <div>
                             <button name="action_database_backup_s3_test" type="object" string="Test AWS S3 Connection" icon="fa-bolt" />
@@ -47,7 +24,7 @@
 
         <menuitem name="Database Backup" id="menu_database_backup_s3_main"
                   parent="base.menu_administration" sequence="1000" />
-        <menuitem name="AWS Settings" id="menu_database_backup_s3_backup"
+        <menuitem name="AWS" id="menu_database_backup_s3_backup"
                   parent="menu_database_backup_s3_main" sequence="1"
                   action="action_database_backup_s3_backup" />
     </data>
